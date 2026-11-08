@@ -1,5 +1,6 @@
 {
   "name": "vite-react-typescript-tailwindv4-vitest-template",
+  "packageManager": "pnpm@12.16.1",
   "private": true,
   "version": "0.0.0",
   "type": "module",
