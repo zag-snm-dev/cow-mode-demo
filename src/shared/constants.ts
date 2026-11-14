@@ -9,7 +9,7 @@ export const LIMITS = {
   /** 保存できる画像の総数(履歴が参照している分も含む) */
   imageCount: 50,
   /** カードの名前 / ニックネームの文字数 */
-  cardName: { min: 1, max: 20 },
+  cardName: { min: 1, max: 10 },
   /** アップロード商品の名前の文字数 */
   itemName: { min: 1, max: 20 },
   /** 読み込み前のファイルサイズ上限(5MB) */
