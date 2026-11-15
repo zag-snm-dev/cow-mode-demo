@@ -26,3 +26,8 @@ export const IMAGE = {
 
 /** お買い物ページで1回に表示する商品数 */
 export const PRODUCTS_PER_PAGE = 5
+
+/** 画面に出すお知らせの文言 */
+export const MESSAGES = {
+  noHistory: '履歴はありません。商品の決済をしてみましょう',
+} as const
