@@ -12,6 +12,8 @@ export const LIMITS = {
   cardName: { min: 1, max: 10 },
   /** アップロード商品の名前の文字数 */
   itemName: { min: 1, max: 20 },
+  /** 外部API(DummyJSON)の商品名の文字数。入力欄の上限(itemName)とは別に、広くとる */
+  apiItemName: { min: 1, max: 200 },
   /** 読み込み前のファイルサイズ上限(5MB) */
   fileSizeBytes: 5 * 1024 * 1024,
 } as const
