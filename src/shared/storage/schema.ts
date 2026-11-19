@@ -14,7 +14,7 @@ export const cardSchema = z.object({
   createdAt: z.number().int().nonnegative(),
 })
 
-const httpsUrlSchema = z
+export const httpsUrlSchema = z
   .url()
   .refine((url) => url.startsWith('https://'), 'https のURLだけを受け付ける')
 
@@ -29,7 +29,7 @@ const apiItemSchema = z.object({
   ...lineBase,
   source: z.literal('api'),
   /** 外部APIの商品名は20字を超えることがあるため、上限を広くとる */
-  name: z.string().min(1).max(200),
+  name: z.string().min(LIMITS.apiItemName.min).max(LIMITS.apiItemName.max),
   imageUrl: httpsUrlSchema,
 })
 
