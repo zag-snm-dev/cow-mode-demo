@@ -68,18 +68,18 @@ describe('アクセス制御', () => {
 
     expect(await screen.findByRole('heading', { name: 'お買い物' })).toBeInTheDocument()
     expect(router.state.location.pathname).toBe('/shop')
-    expect(screen.getByRole('status')).toHaveTextContent(MESSAGES.noHistory)
+    expect(screen.getByRole('status', { name: 'お知らせ' })).toHaveTextContent(MESSAGES.noHistory)
   })
 
   it('お知らせは「閉じる」で消える', async () => {
     const user = userEvent.setup()
     seed({ card: true })
     renderApp('/complete')
-    await screen.findByRole('status')
+    await screen.findByRole('status', { name: 'お知らせ' })
 
     await user.click(screen.getByRole('button', { name: '閉じる' }))
 
-    expect(screen.queryByRole('status')).not.toBeInTheDocument()
+    expect(screen.queryByRole('status', { name: 'お知らせ' })).not.toBeInTheDocument()
   })
 
   it('カード作成済み・履歴あり:/complete を表示する', () => {

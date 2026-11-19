@@ -22,6 +22,7 @@ export function Layout() {
         <div className="mx-auto max-w-5xl px-5 pt-3">
           <div
             role="status"
+            aria-label="お知らせ"
             className="flex items-center justify-between gap-3 rounded-card border border-pink bg-surface p-3 text-sm"
           >
             <p>{notice}</p>
