@@ -70,6 +70,8 @@ export const imagesStateSchema = z.object({
 
 export type Card = z.infer<typeof cardSchema>
 export type CartItem = z.infer<typeof cartItemSchema>
+type DistributiveOmit<T, K extends PropertyKey> = T extends unknown ? Omit<T, K> : never
+export type NewCartItem = DistributiveOmit<CartItem, 'quantity'>
 export type Order = z.infer<typeof orderSchema>
 export type MainState = z.infer<typeof mainStateSchema>
 export type ImagesState = z.infer<typeof imagesStateSchema>
