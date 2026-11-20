@@ -1,4 +1,21 @@
-import type { Card, CartItem, Order } from '@/shared/storage/schema'
+import type { Card, CartItem, NewCartItem, Order } from '@/shared/storage/schema'
+
+/** 個数を持たない、カートに入れる前の商品 */
+export const sampleNewApiItem: NewCartItem = {
+  source: 'api',
+  id: 'api:1',
+  name: 'テスト商品1',
+  priceYen: 1500,
+  imageUrl: 'https://cdn.dummyjson.com/test/1.webp',
+}
+
+export const sampleNewUploadItem: NewCartItem = {
+  source: 'upload',
+  id: 'upload:abc',
+  name: '欲しい物',
+  priceYen: 800,
+  imageId: 'img-1',
+}
 
 export const sampleCard: Card = {
   name: 'TARO',

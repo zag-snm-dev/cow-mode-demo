@@ -29,7 +29,10 @@ export const IMAGE = {
 /** お買い物ページで1回に表示する商品数 */
 export const PRODUCTS_PER_PAGE = 5
 
-/** 画面に出すお知らせの文言 */
+/** 画面に出す文言 */
 export const MESSAGES = {
   noHistory: '履歴はありません。商品の決済をしてみましょう',
+  addedToCart: '商品をカートに追加しました',
+  quantityLimit: `1商品あたり${LIMITS.quantity.max}個までです`,
+  addFailed: '追加できませんでした。もう一度お試しください',
 } as const

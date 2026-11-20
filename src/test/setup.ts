@@ -2,6 +2,7 @@ import '@testing-library/jest-dom/vitest'
 import { cleanup } from '@testing-library/react'
 import { afterAll, afterEach, beforeAll } from 'vitest'
 import { resetStorageForTests } from '@/shared/storage/storage'
+import { resetToastForTests } from '@/shared/toast/toastStore'
 import { server } from './msw/server'
 
 // jsdomに<dialog>の開閉が無い場合の補助(あるときは何もしない)
@@ -31,6 +32,7 @@ afterEach(() => {
   server.resetHandlers()
   localStorage.clear()
   resetStorageForTests()
+  resetToastForTests()
 })
 
 afterAll(() => server.close())

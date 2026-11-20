@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { LIMITS } from './constants'
-import { calcSubtotal, calcTotal, formatYen, usdToYen } from './money'
+import { calcSubtotal, calcTotal, formatYen, sumQuantity, usdToYen } from './money'
 
 describe('usdToYen', () => {
   it('固定レート(150)で換算する', () => {
@@ -80,5 +80,15 @@ describe('calcTotal', () => {
     }))
 
     expect(Number.isSafeInteger(calcTotal(lines))).toBe(true)
+  })
+})
+
+describe('sumQuantity', () => {
+  it('全行の個数を合計する', () => {
+    expect(sumQuantity([{ quantity: 2 }, { quantity: 1 }])).toBe(3)
+  })
+
+  it('空のときは0', () => {
+    expect(sumQuantity([])).toBe(0)
   })
 })

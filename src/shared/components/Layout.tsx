@@ -4,6 +4,8 @@ import { Button } from './Button'
 import { Header } from './Header'
 import { readNotice } from './notice'
 import { TabBar } from './TabBar'
+import { sumQuantity } from '@/shared/money'
+import { ToastViewer } from '@/shared/toast/ToastViewer'
 
 export function Layout() {
   const { card, cart } = useStorage('main')
@@ -11,11 +13,12 @@ export function Layout() {
   const navigate = useNavigate()
 
   const hasCard = card !== null
-  const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0)
+  const cartCount = sumQuantity(cart)
   const notice = readNotice(location.state)
 
   return (
     <div className="min-h-dvh">
+      <ToastViewer />
       <Header hasCard={hasCard} cartCount={cartCount} />
 
       {notice !== null && (
