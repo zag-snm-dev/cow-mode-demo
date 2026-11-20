@@ -1,7 +1,7 @@
 export type ButtonVariant = 'primary' | 'secondary'
 
 const base =
-  'inline-flex min-h-11 items-center justify-center rounded-pill px-6 font-bold ' +
+  'inline-flex min-h-11 items-center justify-center rounded-pill px-6 font-bold hover:cursor-pointer ' +
   'transition-colors disabled:cursor-not-allowed disabled:opacity-50 ' +
   'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pink'
 
