@@ -34,3 +34,8 @@ export function calcSubtotal(line: PricedLine): number {
 export function calcTotal(lines: readonly PricedLine[]): number {
   return lines.reduce((sum, line) => sum + calcSubtotal(line), 0)
 }
+
+/** 全行の個数の合計(ヘッダーのバッジなどに使う) */
+export function sumQuantity(lines: readonly { quantity: number }[]): number {
+  return lines.reduce((sum, line) => sum + line.quantity, 0)
+}
