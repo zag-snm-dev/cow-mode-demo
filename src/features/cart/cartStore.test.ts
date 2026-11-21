@@ -1,14 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { StorageQuotaError } from '@/shared/storage/errors'
-import { createInitialMain } from '@/shared/storage/schema'
+import { createInitialMain, createInitialImages } from '@/shared/storage/schema'
 import { load, resetStorageForTests, save } from '@/shared/storage/storage'
-import {
-  sampleApiItem,
-  sampleCard,
-  sampleNewApiItem,
-  sampleNewUploadItem,
-  sampleUploadItem,
-} from '@/test/fixtures'
+import {sampleApiItem, sampleCard, sampleNewApiItem, sampleNewUploadItem, sampleUploadItem, sampleDataUrl, sampleOrder} from '@/test/fixtures'
 import { addItem, addToCart, changeQuantity, removeFromCart, removeItem, setQuantity } from './cartStore'
 
 beforeEach(() => {
@@ -175,5 +169,45 @@ describe('addToCart / setQuantity / removeFromCart(保存)', () => {
 
     expect(() => addToCart(sampleNewApiItem)).toThrow(StorageQuotaError)
     expect(load('main').cart).toEqual([])
+  })
+})
+
+describe('removeFromCart と、画像の片付け', () => {
+  function seed(cart: (typeof sampleUploadItem)[], history = [] as (typeof sampleOrder)[]) {
+    save('images', { ...createInitialImages(), images: { 'img-1': sampleDataUrl } })
+    save('main', { ...createInitialMain(), cart, history })
+  }
+
+  it('アップロード商品を削除すると、使われなくなった画像も消える', () => {
+    seed([sampleUploadItem])
+
+    removeFromCart(sampleUploadItem.id)
+
+    expect(load('images').images).toEqual({})
+  })
+
+  it('同じ画像を使うほかの行があれば、画像は残す', () => {
+    seed([sampleUploadItem, { ...sampleUploadItem, id: 'upload:other' }])
+
+    removeFromCart(sampleUploadItem.id)
+
+    expect(load('images').images).toHaveProperty('img-1')
+  })
+
+  it('履歴が使っている画像は、消さない', () => {
+    seed([sampleUploadItem], [sampleOrder])
+
+    removeFromCart(sampleUploadItem.id)
+
+    expect(load('images').images).toHaveProperty('img-1')
+  })
+
+  it('API商品を削除しても、画像は変わらない', () => {
+    save('images', { ...createInitialImages(), images: { 'img-1': sampleDataUrl } })
+    save('main', { ...createInitialMain(), cart: [sampleApiItem] })
+
+    removeFromCart(sampleApiItem.id)
+
+    expect(load('images').images).toHaveProperty('img-1')
   })
 })
