@@ -36,4 +36,6 @@ export const MESSAGES = {
   quantityLimit: `1商品あたり${LIMITS.quantity.max}個までです`,
   addFailed: '追加できませんでした。もう一度お試しください',
   imageLimit: `保存できる画像は${LIMITS.imageCount}枚までです`,
+  removedFromCart: 'カートから削除しました',
+  updateFailed: '更新できませんでした。もう一度お試しください',
 } as const
