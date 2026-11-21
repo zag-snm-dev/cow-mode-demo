@@ -35,4 +35,5 @@ export const MESSAGES = {
   addedToCart: '商品をカートに追加しました',
   quantityLimit: `1商品あたり${LIMITS.quantity.max}個までです`,
   addFailed: '追加できませんでした。もう一度お試しください',
+  imageLimit: `保存できる画像は${LIMITS.imageCount}枚までです`,
 } as const
