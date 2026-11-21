@@ -1,6 +1,7 @@
 import { LIMITS } from '@/shared/constants'
 import type { CartItem, NewCartItem } from '@/shared/storage/schema'
 import { load, save } from '@/shared/storage/storage'
+import { removeImageIfUnused } from '@/shared/storage/imageStore'
 
 const MIN_QUANTITY = LIMITS.quantity.min
 const MAX_QUANTITY = LIMITS.quantity.max
@@ -69,8 +70,18 @@ export function setQuantity(id: string, quantity: number): void {
   save('main', { ...state, cart: changeQuantity(state.cart, id, quantity) })
 }
 
-/** カートから取り除いて保存する */
+/** カートから取り除いて保存する。アップロード商品の画像は、使われなくなったら片付ける */
 export function removeFromCart(id: string): void {
   const state = load('main')
+  const target = state.cart.find((line) => line.id === id)
+
   save('main', { ...state, cart: removeItem(state.cart, id) })
+
+  if (target?.source === 'upload') {
+    try {
+      removeImageIfUnused(target.imageId)
+    } catch {
+      // 画像の片付けに失敗しても、カートからの削除は完了している
+    }
+  }
 }
