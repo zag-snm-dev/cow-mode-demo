@@ -1,11 +1,32 @@
-import { screen, within } from '@testing-library/react'
+import { act, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { simulatePayment } from '@/features/checkout/simulatePayment'
 import { MESSAGES } from '@/shared/constants'
 import { createInitialImages, createInitialMain, type CartItem } from '@/shared/storage/schema'
 import { load, save } from '@/shared/storage/storage'
 import { sampleApiItem, sampleCard, sampleDataUrl, sampleUploadItem } from '@/test/fixtures'
 import { renderApp } from '@/test/renderApp'
+
+vi.mock('@/features/checkout/simulatePayment', () => ({ simulatePayment: vi.fn() }))
+
+const mockedPay = vi.mocked(simulatePayment)
+let finishPayment: () => void = () => {}
+
+beforeEach(() => {
+  mockedPay.mockReset()
+  // 決済の待ちを、テストが好きなタイミングで終わらせられるようにする
+  mockedPay.mockImplementation(
+    () =>
+      new Promise<void>((resolve) => {
+        finishPayment = resolve
+      }),
+  )
+})
+
+afterEach(() => {
+  vi.restoreAllMocks()
+})
 
 function seed(cart: CartItem[] = [sampleApiItem, sampleUploadItem]) {
   save('images', { ...createInitialImages(), images: { 'img-1': sampleDataUrl } })
@@ -52,12 +73,12 @@ describe('CartPage(表示)', () => {
     expect(container.querySelector(`img[src="${sampleDataUrl}"]`)).not.toBeNull()
   })
 
-  it('決済ボタンは、今は押せない(feature/checkout でつなぐ)', () => {
-    seed()
-    renderApp('/cart')
+  it('商品があれば、決済ボタンを押せる', () => {
+  seed()
+  renderApp('/cart')
 
-    expect(screen.getByRole('button', { name: '決済する' })).toBeDisabled()
-  })
+  expect(screen.getByRole('button', { name: '決済する' })).toBeEnabled()
+})
 })
 
 describe('CartPage(数量の変更)', () => {
@@ -162,5 +183,85 @@ describe('CartPage(空のカート)', () => {
 
     expect(router.state.location.pathname).toBe('/shop')
     expect(await screen.findByRole('heading', { name: 'お買い物' })).toBeInTheDocument()
+  })
+})
+
+describe('CartPage(決済)', () => {
+  const payButton = () => screen.getByRole('button', { name: '決済する' })
+
+  it('決済すると、処理中は操作できず、終わったら履歴に保存して /complete へ移る', async () => {
+    const user = userEvent.setup()
+    seed()
+    const { router } = renderApp('/cart')
+
+    await user.click(payButton())
+
+    // 処理中:ボタンの表示が変わり、数量の変更と削除もできない。まだ保存されていない
+    expect(await screen.findByRole('button', { name: '決済しています…' })).toBeDisabled()
+    expect(screen.getByRole('button', { name: 'テスト商品1の数量を増やす' })).toBeDisabled()
+    expect(screen.getByRole('button', { name: 'テスト商品1をカートから削除' })).toBeDisabled()
+    expect(load('main').history).toEqual([])
+
+    await act(async () => {
+      finishPayment()
+    })
+
+    expect(await screen.findByRole('heading', { name: '決済が完了しました' })).toBeInTheDocument()
+    expect(router.state.location.pathname).toBe('/complete')
+    expect(load('main').cart).toEqual([])
+    expect(load('main').history).toHaveLength(1)
+    expect(load('main').history[0]).toMatchObject({ totalYen: 3800 })
+    // ヘッダーのカートのバッジも消えている
+    expect(screen.getAllByRole('link', { name: 'カート' })).toHaveLength(2)
+  })
+
+  it('続けて2回押しても、決済は1回だけ', async () => {
+    const user = userEvent.setup()
+    seed()
+    renderApp('/cart')
+
+    await user.dblClick(payButton())
+    await screen.findByRole('button', { name: '決済しています…' })
+    await act(async () => {
+      finishPayment()
+    })
+    await screen.findByRole('heading', { name: '決済が完了しました' })
+
+    expect(mockedPay).toHaveBeenCalledTimes(1)
+    expect(load('main').history).toHaveLength(1)
+  })
+
+  it('保存に失敗したら、エラーを表示し、カートは残り、直してからもう一度決済できる', async () => {
+    const user = userEvent.setup()
+    seed()
+    const { router } = renderApp('/cart')
+    const original = Storage.prototype.setItem
+    const spy = vi
+      .spyOn(Storage.prototype, 'setItem')
+      .mockImplementation(function (this: Storage, key: string, value: string) {
+        if (key === 'app:main') throw new DOMException('quota', 'QuotaExceededError')
+        original.call(this, key, value)
+      })
+
+    await user.click(payButton())
+    await act(async () => {
+      finishPayment()
+    })
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('容量がいっぱいで、決済できませんでした')
+    expect(router.state.location.pathname).toBe('/cart')
+    expect(load('main').cart).toHaveLength(2)
+    expect(load('main').history).toEqual([])
+    expect(payButton()).toBeEnabled()
+    expect(screen.getByRole('heading', { name: 'テスト商品1' })).toBeInTheDocument()
+
+    // 直してから、もう一度
+    spy.mockRestore()
+    await user.click(payButton())
+    await act(async () => {
+      finishPayment()
+    })
+
+    expect(await screen.findByRole('heading', { name: '決済が完了しました' })).toBeInTheDocument()
   })
 })

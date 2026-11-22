@@ -9,9 +9,20 @@ type Props = {
   cardPreview?: ReactNode
   /** 決済ボタンを押したとき。ないときは、ボタンを押せない状態にする */
   onCheckout?: () => void
+  /** 決済の処理中か(ボタンを押せなくする) */
+  isProcessing?: boolean
+  /** 決済に失敗したときのメッセージ */
+  errorMessage?: string | null
 }
 
-export function CartSummary({ count, totalYen, cardPreview, onCheckout }: Props) {
+export function CartSummary({
+  count,
+  totalYen,
+  cardPreview,
+  onCheckout,
+  isProcessing = false,
+  errorMessage = null,
+}: Props) {
   return (
     <section
       aria-labelledby="cart-summary-heading"
@@ -43,9 +54,20 @@ export function CartSummary({ count, totalYen, cardPreview, onCheckout }: Props)
         </div>
       )}
 
-      <Button className="w-full" disabled={onCheckout === undefined} onClick={onCheckout}>
-        決済する
+      <Button
+        className="w-full"
+        disabled={onCheckout === undefined || isProcessing}
+        aria-busy={isProcessing}
+        onClick={onCheckout}
+      >
+        {isProcessing ? '決済しています…' : '決済する'}
       </Button>
+
+      {errorMessage && (
+        <p role="alert" className="text-sm text-pink">
+          {errorMessage}
+        </p>
+      )}
     </section>
   )
 }

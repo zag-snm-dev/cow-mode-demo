@@ -42,3 +42,32 @@ describe('CartSummary', () => {
     expect(onCheckout).toHaveBeenCalledTimes(1)
   })
 })
+
+describe('CartSummary(決済の処理中・失敗)', () => {
+  it('処理中は、「決済しています…」と表示し、ボタンを押せない', async () => {
+    const user = userEvent.setup()
+    const onCheckout = vi.fn()
+    render(<CartSummary count={1} totalYen={100} onCheckout={onCheckout} isProcessing />)
+
+    const button = screen.getByRole('button', { name: '決済しています…' })
+    expect(button).toBeDisabled()
+    expect(button).toHaveAttribute('aria-busy', 'true')
+
+    await user.click(button)
+    expect(onCheckout).not.toHaveBeenCalled()
+  })
+
+  it('エラーのメッセージが渡されたら、alertとして表示する', () => {
+    render(
+      <CartSummary count={1} totalYen={100} onCheckout={vi.fn()} errorMessage="決済できませんでした" />,
+    )
+
+    expect(screen.getByRole('alert')).toHaveTextContent('決済できませんでした')
+  })
+
+  it('エラーがなければ、alertを出さない', () => {
+    render(<CartSummary count={1} totalYen={100} onCheckout={vi.fn()} />)
+
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument()
+  })
+})

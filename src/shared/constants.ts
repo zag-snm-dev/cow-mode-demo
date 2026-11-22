@@ -29,6 +29,9 @@ export const IMAGE = {
 /** お買い物ページで1回に表示する商品数 */
 export const PRODUCTS_PER_PAGE = 5
 
+/** 疑似決済の待ち時間(ミリ秒) */
+export const PAYMENT_DELAY_MS = 1000
+
 /** 画面に出す文言 */
 export const MESSAGES = {
   noHistory: '履歴はありません。商品の決済をしてみましょう',
@@ -38,4 +41,8 @@ export const MESSAGES = {
   imageLimit: `保存できる画像は${LIMITS.imageCount}枚までです`,
   removedFromCart: 'カートから削除しました',
   updateFailed: '更新できませんでした。もう一度お試しください',
+  checkoutFailed: '決済できませんでした。もう一度お試しください',
+  checkoutQuota: '容量がいっぱいで、決済できませんでした',
+  checkoutEmpty: 'カートが空のため、決済できません',
+  checkoutNoCard: 'カードがないため、決済できません。トップページでカードを作成してください',
 } as const
