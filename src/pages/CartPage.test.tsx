@@ -169,7 +169,7 @@ describe('CartPage(空のカート)', () => {
     renderApp('/cart')
 
     expect(screen.getByText('カートは空です')).toBeInTheDocument()
-    expect(screen.getByText('牛キャラ(正面)・仮画像')).toBeInTheDocument()
+    expect(screen.getByAltText('COW MODEのキャラクター(牛)')).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'お買い物へ' })).toHaveAttribute('href', '/shop')
     expect(screen.queryByRole('button', { name: '決済する' })).not.toBeInTheDocument()
   })

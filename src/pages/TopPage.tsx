@@ -9,7 +9,7 @@ export function TopPage() {
   const [open, setOpen] = useState(false)
 
   return (
-    <div className="grid gap-12">
+    <div className="grid gap-24">
       <Hero />
 
       <section aria-labelledby="how-to-heading" className="grid gap-6">

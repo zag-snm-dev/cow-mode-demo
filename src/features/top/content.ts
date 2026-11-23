@@ -1,9 +1,14 @@
 import { IMAGE, LIMITS } from '@/shared/constants'
+import { NEED_CARD_COPY } from '@/features/card/content'
 
 export const HERO_COPY = {
   title: 'COW MODE',
-  // 仮の文面。確定したら、ここだけ書き換える
-  lead: '欲しい物を、好きなだけカートへ。上限なしの架空のカードで、物欲を思いきり解放しよう。',
+  /** 1行ずつ区切って表示する(区切りの途中では、折り返さない) */
+  leadLines: [
+    '欲しい物を好きなだけカートへ。',
+    '上限なしの架空カードで、',
+    '物欲を思いきり解放しよう。',
+  ],
 } as const
 
 export const DISCLAIMER = '架空のカードです。実際の決済は行われません'
@@ -24,7 +29,7 @@ export const HOW_TO_STEPS: HowToStep[] = [
   {
     id: 'create-card',
     title: 'カードを作成',
-    description: '名前を入力してカードを作成してください。',
+    description: NEED_CARD_COPY.description,
     notes: [],
     screenshot: { src: null, alt: 'カード作成画面のスクリーンショット' },
   },
