@@ -6,6 +6,7 @@ import { save } from '@/shared/storage/storage'
 import { sampleApiItem, sampleCard, sampleDataUrl, sampleOrder, sampleUploadItem } from '@/test/fixtures'
 import { clearFromOtherTab, writeFromOtherTab } from '@/test/otherTab'
 import { renderApp } from '@/test/renderApp'
+import { NEED_CARD_COPY } from '@/features/card/content'
 
 const main = (overrides: Partial<MainState> = {}): MainState => ({
   ...createInitialMain(),
@@ -39,7 +40,7 @@ describe('別のタブの変更が、画面に反映される', () => {
 
   it('M1b:「カードを作成してください」の画面は、別のタブでカードが作られると、本来の画面に変わる', async () => {
     renderApp('/cart')
-    expect(screen.getByRole('heading', { name: 'カードを作成してください' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: NEED_CARD_COPY.title })).toBeInTheDocument()
 
     fromOtherTab({ card: sampleCard })
 
@@ -107,7 +108,7 @@ describe('別のタブの変更が、画面に反映される', () => {
       clearFromOtherTab()
     })
 
-    expect(screen.getByRole('heading', { name: 'カードを作成してください' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: NEED_CARD_COPY.title })).toBeInTheDocument()
   })
 
   it('別のタブが壊れたデータを書いても、初期状態に戻り、壊れたデータは消える', () => {
@@ -118,7 +119,7 @@ describe('別のタブの変更が、画面に反映される', () => {
       writeFromOtherTab('main', '{broken')
     })
 
-    expect(screen.getByRole('heading', { name: 'カードを作成してください' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: NEED_CARD_COPY.title })).toBeInTheDocument()
     expect(localStorage.getItem('app:main')).toBeNull()
   })
 })

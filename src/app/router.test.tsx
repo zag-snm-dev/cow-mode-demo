@@ -1,3 +1,4 @@
+import { NEED_CARD_COPY } from '@/features/card/content'
 import { screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it } from 'vitest'
@@ -35,7 +36,7 @@ describe('アクセス制御', () => {
     (path) => {
       const { router } = renderApp(path)
 
-      expect(screen.getByRole('heading', { name: 'カードを作成してください' })).toBeInTheDocument()
+      expect(screen.getByRole('heading', { name: NEED_CARD_COPY.title })).toBeInTheDocument()
       expect(screen.getByRole('link', { name: 'トップページへ' })).toHaveAttribute('href', '/')
       expect(router.state.location.pathname).toBe(path)
     },
@@ -93,7 +94,7 @@ describe('アクセス制御', () => {
   it('カード未作成:/complete もカード作成を促す', () => {
     renderApp('/complete')
 
-    expect(screen.getByRole('heading', { name: 'カードを作成してください' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: NEED_CARD_COPY.title })).toBeInTheDocument()
   })
 
   it('存在しないURLは404を表示する', () => {
