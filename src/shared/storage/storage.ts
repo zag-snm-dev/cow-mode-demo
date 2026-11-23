@@ -51,42 +51,67 @@ export function isMemoryMode(): boolean {
 
 // ---- 読み出し ----
 
-/** 読み出した値のキャッシュ。同じ値には、同じオブジェクトを返し続ける */
-const cache = new Map<StorageKey, unknown>()
+/** 読み出した値と、そのときの保存データの文字列(他のタブで変わったかを見分けるために持つ) */
+type CacheEntry = { raw: string | null; value: unknown }
 
-function readState<T>(def: Definition<T>): T {
-  const store = getBackend()
+/** 読み出した値のキャッシュ。変更がない限り、同じオブジェクトを返し続ける */
+const cache = new Map<StorageKey, CacheEntry>()
 
-  let raw: string | null
+function readRaw(key: string): string | null {
   try {
-    raw = store.getItem(def.key)
+    return getBackend().getItem(key)
   } catch {
-    return def.initial()
+    return null
   }
-  if (raw === null) return def.initial()
+}
+
+function readEntry<T>(def: Definition<T>): { raw: string | null; value: T } {
+  const raw = readRaw(def.key)
+  if (raw === null) return { raw, value: def.initial() }
 
   try {
     const result = def.schema.safeParse(JSON.parse(raw))
-    if (result.success) return result.data
+    if (result.success) return { raw, value: result.data }
   } catch {
     // JSONとして壊れている場合は、下の初期化に進む
   }
 
-  // 検証に失敗した(壊れている / 版が違う)ので、初期化する
+  // 検証に失敗した(壊れている / 版が違う)ので、消して初期化する
   try {
-    store.removeItem(def.key)
+    getBackend().removeItem(def.key)
   } catch {
     // 消せなくても続行する
   }
-  return def.initial()
+  return { raw: null, value: def.initial() }
 }
 
-/** 保存データを読み出す。検証に失敗したときは初期化して、初期値を返す */
+/** 保存データを読み出す(画面の表示用)。検証に失敗したときは初期化して、初期値を返す */
 export function load<K extends StorageKey>(name: K): StateMap[K] {
-  if (!cache.has(name)) {
-    cache.set(name, readState(definitions[name]))
+  let entry = cache.get(name)
+  if (entry === undefined) {
+    entry = readEntry(definitions[name])
+    cache.set(name, entry)
   }
-  return cache.get(name) as StateMap[K]
+  return entry.value as StateMap[K]
+}
+
+/**
+ * 保存データを、保存先から読み直して返す。保存データを「書き換える処理」の前に使う。
+ * 他のタブの変更の通知(storageイベント)が、まだ届いていなくても、古い内容を元に上書きしない。
+ * 古いキャッシュだったときは、画面にも通知する。
+ */
+export function loadLatest<K extends StorageKey>(name: K): StateMap[K] {
+  const def = definitions[name]
+  const cached = cache.get(name)
+
+  if (cached !== undefined && cached.raw === readRaw(def.key)) {
+    return cached.value as StateMap[K]
+  }
+
+  const entry = readEntry(def)
+  cache.set(name, entry)
+  if (cached !== undefined) notify()
+  return entry.value as StateMap[K]
 }
 
 // ---- 購読(画面への通知) ----
@@ -113,16 +138,17 @@ export function save<K extends StorageKey>(name: K, value: StateMap[K]): void {
 
   // 書き込む前にも検証する(アプリのバグで、壊れたデータを保存しないため)
   const validated = def.schema.parse(value)
+  const serialized = JSON.stringify(validated)
 
   try {
-    getBackend().setItem(def.key, JSON.stringify(validated))
+    getBackend().setItem(def.key, serialized)
   } catch (error) {
     if (isQuotaExceededError(error)) throw new StorageQuotaError()
     throw error
   }
 
   // 書き込みに成功してから、キャッシュを更新して通知する
-  cache.set(name, validated)
+  cache.set(name, { raw: serialized, value: validated })
   notify()
 }
 
@@ -156,8 +182,39 @@ function handleStorageEvent(event: StorageEvent): void {
   notify()
 }
 
+/**
+ * 保存データが、他のタブで変わっていないかを確かめ、変わっていれば画面に通知する。
+ * 裏に回っていたタブや、「戻る」で復元されたページは、storageイベントを受け取れていないことがあるため、
+ * 再び見える状態になったときに呼ぶ。
+ */
+export function syncWithStorage(): void {
+  let changed = false
+
+  names.forEach((name) => {
+    const cached = cache.get(name)
+    if (cached === undefined) return // まだ読んでいない(次に load したときに、最新を読む)
+
+    if (readRaw(definitions[name].key) !== cached.raw) {
+      cache.delete(name)
+      changed = true
+    }
+  })
+
+  if (changed) notify()
+}
+
 if (typeof window !== 'undefined') {
   window.addEventListener('storage', handleStorageEvent)
+
+  // 「戻る・進む」で復元されたページ
+  window.addEventListener('pageshow', (event) => {
+    if (event.persisted) syncWithStorage()
+  })
+
+  // 裏に回っていたタブが、再び見える状態になったとき
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') syncWithStorage()
+  })
 }
 
 /** テスト専用:モジュール内の状態を最初に戻す */

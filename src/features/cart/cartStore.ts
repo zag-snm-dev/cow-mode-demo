@@ -1,6 +1,6 @@
 import { LIMITS } from '@/shared/constants'
 import type { CartItem, NewCartItem } from '@/shared/storage/schema'
-import { load, save } from '@/shared/storage/storage'
+import { loadLatest, save } from '@/shared/storage/storage'
 import { removeImageIfUnused } from '@/shared/storage/imageStore'
 
 const MIN_QUANTITY = LIMITS.quantity.min
@@ -58,7 +58,7 @@ export function removeItem(cart: readonly CartItem[], id: string): CartItem[] {
 
 /** カートに追加して保存する。容量がいっぱいのときは StorageQuotaError を投げる */
 export function addToCart(item: NewCartItem, quantity = 1): AddResult {
-  const state = load('main')
+  const state = loadLatest('main')
   const { cart, result } = addItem(state.cart, item, quantity)
   save('main', { ...state, cart })
   return result
@@ -66,13 +66,13 @@ export function addToCart(item: NewCartItem, quantity = 1): AddResult {
 
 /** 数量を変更して保存する */
 export function setQuantity(id: string, quantity: number): void {
-  const state = load('main')
+  const state = loadLatest('main')
   save('main', { ...state, cart: changeQuantity(state.cart, id, quantity) })
 }
 
 /** カートから取り除いて保存する。アップロード商品の画像は、使われなくなったら片付ける */
 export function removeFromCart(id: string): void {
-  const state = load('main')
+  const state = loadLatest('main')
   const target = state.cart.find((line) => line.id === id)
 
   save('main', { ...state, cart: removeItem(state.cart, id) })

@@ -1,7 +1,7 @@
 import { generateId } from '@/shared/id'
 import { calcTotal } from '@/shared/money'
 import type { CartItem, Order } from '@/shared/storage/schema'
-import { load, save } from '@/shared/storage/storage'
+import { loadLatest, save } from '@/shared/storage/storage'
 import { CheckoutError } from './errors'
 
 type OrderMeta = { id: string; paidAt: number }
@@ -27,7 +27,7 @@ export function createOrder(cart: readonly CartItem[], meta: OrderMeta): Order {
  * どのエラーでも、何も保存されず、カートはそのまま残る。
  */
 export function completeCheckout(now: number = Date.now()): Order {
-  const state = load('main')
+  const state = loadLatest('main')
   if (state.card === null) throw new CheckoutError('no-card')
 
   const order = createOrder(state.cart, { id: generateId(), paidAt: now })
