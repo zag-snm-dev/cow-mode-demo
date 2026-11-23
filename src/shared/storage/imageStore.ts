@@ -1,7 +1,7 @@
 import { LIMITS, MESSAGES } from '@/shared/constants'
 import { generateId } from '@/shared/id'
 import type { CartItem, MainState } from './schema'
-import { load, save } from './storage'
+import { loadLatest, load, save } from './storage'
 
 /** 保存できる画像の数(50枚)に達していて、保存できないときのエラー */
 export class ImageLimitError extends Error {
@@ -42,7 +42,7 @@ export function getImage(imageId: string): string | null {
  * 上限(50枚)に達しているときは ImageLimitError、容量がいっぱいのときは StorageQuotaError を投げる。
  */
 export function saveImage(dataUrl: string): string {
-  const state = load('images')
+  const state = loadLatest('images')
   if (Object.keys(state.images).length >= LIMITS.imageCount) throw new ImageLimitError()
 
   const imageId = generateId()
@@ -55,9 +55,9 @@ export function saveImage(dataUrl: string): string {
  * 消したら true、残したら(使われている・存在しない)false。
  */
 export function removeImageIfUnused(imageId: string): boolean {
-  if (referencedImageIds(load('main')).has(imageId)) return false
+  if (referencedImageIds(loadLatest('main')).has(imageId)) return false
 
-  const state = load('images')
+  const state = loadLatest('images')
   if (!(imageId in state.images)) return false
 
   const images = Object.fromEntries(Object.entries(state.images).filter(([id]) => id !== imageId))
