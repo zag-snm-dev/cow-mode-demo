@@ -15,6 +15,7 @@ describe('TopPage(表示)', () => {
 
     expect(screen.getByRole('heading', { level: 1, name: 'COW MODE' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { level: 2, name: '使い方' })).toBeInTheDocument()
+    expect(screen.getByAltText('COW MODEのキャラクター(牛)')).toBeInTheDocument()
   })
 
   it('使い方を、3つのブロックで順に表示する', () => {
