@@ -2,6 +2,7 @@ import { latestOrder } from '@/features/history/selectors'
 import { LinkButton } from '@/shared/components/LinkButton'
 import { formatYen, sumQuantity } from '@/shared/money'
 import { useStorage } from '@/shared/storage/useStorage'
+import { CowImage } from '@/shared/components/CowImage'
 
 export function CompletePage() {
   const { history } = useStorage('main')
@@ -12,12 +13,8 @@ export function CompletePage() {
 
   return (
     <div className="grid justify-items-center gap-4 py-10 text-center">
-      {/* 牛キャラ(お辞儀)の画像は、chore/assets-copy で差し替える */}
-      <div
-        aria-hidden="true"
-        className="flex h-48 w-48 items-center justify-center rounded-card border border-dashed border-gold bg-surface text-xs text-gold"
-      >
-        牛キャラ(お辞儀)・仮画像
+      <div className="flex justify-center">
+        <CowImage variant="bow" priority className="w-40" />
       </div>
 
       <h1 className="text-2xl">決済が完了しました</h1>

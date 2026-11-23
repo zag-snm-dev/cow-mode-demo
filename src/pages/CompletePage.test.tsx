@@ -18,7 +18,7 @@ describe('CompletePage', () => {
     expect(screen.getByRole('heading', { name: '決済が完了しました' })).toBeInTheDocument()
     expect(screen.getByText('¥3,800')).toBeInTheDocument()
     expect(screen.getByText('(3点)')).toBeInTheDocument() // 2個 + 1個
-    expect(screen.getByText('牛キャラ(お辞儀)・仮画像')).toBeInTheDocument()
+    expect(screen.getByAltText('お辞儀をするCOW MODEのキャラクター(牛)')).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'トップに戻る' })).toHaveAttribute('href', '/')
   })
 
