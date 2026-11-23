@@ -2,7 +2,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { sampleApiItem, sampleCard, sampleDataUrl } from '@/test/fixtures'
 import { STORAGE_MESSAGES, StorageQuotaError } from './errors'
 import { createInitialImages, createInitialMain } from './schema'
-import { clear, isMemoryMode, load, save, subscribe } from './storage'
+import { clear, isMemoryMode, load, loadLatest, save, subscribe } from './storage'
+import { writeFromOtherTab } from '@/test/otherTab'
 
 afterEach(() => {
   vi.restoreAllMocks()
@@ -173,5 +174,99 @@ describe('subscribe', () => {
     fireStorageEvent(null)
 
     expect(listener).toHaveBeenCalledTimes(1)
+  })
+})
+
+describe('loadLatest', () => {
+  it('まだ読んでいないときは、保存先から読む', () => {
+    writeFromOtherTab('main', { ...createInitialMain(), card: sampleCard }, { notify: false })
+
+    expect(loadLatest('main').card).toEqual(sampleCard)
+  })
+
+  it('変更がなければ、キャッシュと同じオブジェクトを返し、通知しない', () => {
+    const cached = load('main')
+    const listener = vi.fn()
+    subscribe(listener)
+
+    expect(loadLatest('main')).toBe(cached)
+    expect(listener).not.toHaveBeenCalled()
+  })
+
+  it('通知が届いていない他のタブの変更も読み直し、購読者に通知する', () => {
+    load('main')
+    const listener = vi.fn()
+    subscribe(listener)
+    writeFromOtherTab('main', { ...createInitialMain(), card: sampleCard }, { notify: false })
+
+    expect(loadLatest('main').card).toEqual(sampleCard)
+    expect(listener).toHaveBeenCalledTimes(1)
+    expect(load('main').card).toEqual(sampleCard)
+  })
+
+  it('壊れたデータは、初期化して返す', () => {
+    load('main')
+    writeFromOtherTab('main', '{broken', { notify: false })
+
+    expect(loadLatest('main')).toEqual(createInitialMain())
+    expect(localStorage.getItem('app:main')).toBeNull()
+  })
+})
+
+describe('タブが見える状態に戻ったとき', () => {
+  function becomeVisible(state: DocumentVisibilityState = 'visible') {
+    vi.spyOn(document, 'visibilityState', 'get').mockReturnValue(state)
+    document.dispatchEvent(new Event('visibilitychange'))
+  }
+
+  function otherTabChangedCard() {
+    load('main')
+    writeFromOtherTab('main', { ...createInitialMain(), card: sampleCard }, { notify: false })
+  }
+
+  it('通知が届いていなくても、他のタブの変更を読み直して通知する', () => {
+    otherTabChangedCard()
+    const listener = vi.fn()
+    subscribe(listener)
+    expect(load('main').card).toBeNull() // 通知が届いていないので、古いまま
+
+    becomeVisible()
+
+    expect(listener).toHaveBeenCalledTimes(1)
+    expect(load('main').card).toEqual(sampleCard)
+  })
+
+  it('見えない状態になったときは、何もしない', () => {
+    otherTabChangedCard()
+    const listener = vi.fn()
+    subscribe(listener)
+
+    becomeVisible('hidden')
+
+    expect(listener).not.toHaveBeenCalled()
+    expect(load('main').card).toBeNull()
+  })
+
+  it('他のタブで何も変わっていなければ、通知しない', () => {
+    load('main')
+    const listener = vi.fn()
+    subscribe(listener)
+
+    becomeVisible()
+
+    expect(listener).not.toHaveBeenCalled()
+  })
+
+  it('「戻る」で復元されたページ(persisted)でも、読み直す。復元でなければ何もしない', () => {
+    otherTabChangedCard()
+    const listener = vi.fn()
+    subscribe(listener)
+
+    window.dispatchEvent(Object.assign(new Event('pageshow'), { persisted: false }))
+    expect(listener).not.toHaveBeenCalled()
+
+    window.dispatchEvent(Object.assign(new Event('pageshow'), { persisted: true }))
+    expect(listener).toHaveBeenCalledTimes(1)
+    expect(load('main').card).toEqual(sampleCard)
   })
 })
