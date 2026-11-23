@@ -22,7 +22,7 @@ export function OrderRow({ order }: Props) {
           onClick={() => setOpen((current) => !current)}
           className="flex min-h-14 w-full items-center justify-between gap-3 rounded-card p-4 text-left text-ivory hover:bg-ink/40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pink hover:cursor-pointer"
         >
-          <span className="flex items-center gap-3">
+          <span className="flex items-center gap-2">
             <span aria-hidden="true" className="text-gold">
               {open ? '▼' : '▶'}
             </span>

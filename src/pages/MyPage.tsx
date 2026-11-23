@@ -18,7 +18,10 @@ export function MyPage() {
           <h2 id="my-card-heading" className="sr-only">
             マイカード
           </h2>
-          <CardView side="front" name={card.name} className="w-full max-w-xs" />
+          <div className="flex gap-1 justify-center">
+            <CardView side="front" name={card.name} className="w-full max-w-xs" />
+            <CardView side="back" number={card.number} className="w-full max-w-xs" />
+          </div>
         </section>
       )}
 

@@ -26,7 +26,7 @@ export function NavLinkItem({ to, label, count = 0, variant }: Props) {
       aria-label={ariaLabel}
       className={({ isActive }) =>
         `${base} ${variants[variant]} ${
-          isActive ? 'text-gold underline underline-offset-4' : 'text-ivory hover:text-gold'
+          isActive ? 'text-gold underline underline-offset-2' : 'text-ivory hover:text-gold'
         }`
       }
     >
