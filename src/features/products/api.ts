@@ -1,6 +1,6 @@
 import { productsResponseSchema, type ProductsResponse } from './schema'
 
-const PRODUCTS_URL = 'https://dummyjson.com/products'
+export const PRODUCTS_URL = 'https://dummyjson.com/products'
 
 /** HTTPの応答が、成功(2xx)でなかったときのエラー */
 export class ProductsApiError extends Error {
