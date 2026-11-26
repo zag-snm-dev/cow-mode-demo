@@ -23,30 +23,30 @@ TanStack Queryによるサーバー状態管理 / zodによる入力・保存デ
 
 ## 2. 技術・前提
 
-| 項目 | 内容 |
-| --- | --- |
-| フロント | React, TypeScript, Vite, Tailwind CSS【確定】 |
-| ルーティング | React Router【確定】 |
-| サーバー状態 | TanStack Query【確定】 |
-| 検証 | zod(フォーム入力・アップロード・localStorage読み出し)【確定】 |
-| テスト | Vitest【確定】、React Testing Library【提案】 |
-| 保存先 | localStorage【確定】。Expressは使わず静的サイトとして配信【提案】 |
-| 外部API | DummyJSON(商品一覧)【確定】 |
-| 通貨 | ユーザーは全て日本円での買い物を前提とする【確定】。DummyJSONはドル表示しかないため、裏で固定レート1ドル=150円で円に換算し、四捨五入で整数にする【確定】。画面にはドルもレートも表示しない【確定】 |
-| デプロイ | Vercel【確定】 |
-| 画像 | ChatGPTで生成した4種を用意する:カード表(名前)、カード裏(番号)、キャラ正面、キャラお辞儀(決済時)【確定】 |
-| 対応端末 | スマホ〜PCのレスポンシブ【確定】 |
+| 項目         | 内容                                                                                                                                                                                               |
+| ------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| フロント     | React, TypeScript, Vite, Tailwind CSS【確定】                                                                                                                                                      |
+| ルーティング | React Router【確定】                                                                                                                                                                               |
+| サーバー状態 | TanStack Query【確定】                                                                                                                                                                             |
+| 検証         | zod(フォーム入力・アップロード・localStorage読み出し)【確定】                                                                                                                                      |
+| テスト       | Vitest【確定】、React Testing Library【提案】                                                                                                                                                      |
+| 保存先       | localStorage【確定】。Expressは使わず静的サイトとして配信【提案】                                                                                                                                  |
+| 外部API      | DummyJSON(商品一覧)【確定】                                                                                                                                                                        |
+| 通貨         | ユーザーは全て日本円での買い物を前提とする【確定】。DummyJSONはドル表示しかないため、裏で固定レート1ドル=150円で円に換算し、四捨五入で整数にする【確定】。画面にはドルもレートも表示しない【確定】 |
+| デプロイ     | Vercel【確定】                                                                                                                                                                                     |
+| 画像         | ChatGPTで生成した4種を用意する:カード表(名前)、カード裏(番号)、キャラ正面、キャラお辞儀(決済時)【確定】                                                                                            |
+| 対応端末     | スマホ〜PCのレスポンシブ【確定】                                                                                                                                                                   |
 
 ## 3. 画面構成と遷移
 
-| パス | 画面 |
-| --- | --- |
-| `/` | トップ(使い方をスクロールで見せる+「カードを作成する」ボタン) |
-| `/shop` | お買い物ページ |
-| `/cart` | カートページ |
-| `/complete` | 決済後ページ |
-| `/mypage` | マイページ |
-| `*` | 404ページ【提案】 |
+| パス        | 画面                                                          |
+| ----------- | ------------------------------------------------------------- |
+| `/`         | トップ(使い方をスクロールで見せる+「カードを作成する」ボタン) |
+| `/shop`     | お買い物ページ                                                |
+| `/cart`     | カートページ                                                  |
+| `/complete` | 決済後ページ                                                  |
+| `/mypage`   | マイページ                                                    |
+| `*`         | 404ページ【提案】                                             |
 
 流れ:トップ → カード作成(モーダル) → お買い物 → カート → 決済 → 決済後 → トップに戻る(作成済みなのでお買い物が開く)。マイページはヘッダーから移動する。
 
@@ -272,18 +272,18 @@ UI
 
 ### 5.1 保存キー
 
-| キー | 内容 |
-| --- | --- |
-| `app:main` | `{ version: 1, card, cart, history }`【提案】 |
+| キー         | 内容                                                     |
+| ------------ | -------------------------------------------------------- |
+| `app:main`   | `{ version: 1, card, cart, history }`【提案】            |
 | `app:images` | `{ version: 1, images: { [imageId]: dataUrl } }`【提案】 |
 
 ### 5.2 主なデータ
 
-| データ | 項目 |
-| --- | --- |
-| Card | name, number(17桁), createdAt |
+| データ   | 項目                                                                                                |
+| -------- | --------------------------------------------------------------------------------------------------- |
+| Card     | name, number(17桁), createdAt                                                                       |
 | CartItem | source(`api` か `upload`), id, name, priceYen, quantity(1〜99), imageUrl(api)または imageId(upload) |
-| Order | id, paidAt, items(商品名・円単価・数量・画像参照), totalYen |
+| Order    | id, paidAt, items(商品名・円単価・数量・画像参照), totalYen                                         |
 
 ### 5.3 ルール
 
@@ -616,21 +616,21 @@ pnpm add -D vitest jsdom @testing-library/react @testing-library/dom @testing-li
 pnpm add -D prettier eslint-config-prettier @types/node
 ```
 
-| パッケージ | 種別 | 用途 |
-| --- | --- | --- |
-| `react-router` | 必須 | 画面遷移(v7。旧 `react-router-dom` の機能も含む) |
-| `@tanstack/react-query` | 必須 | 商品取得のキャッシュ、`useInfiniteQuery`、`useMutation` |
-| `zod` | 必須 | フォーム・API応答・localStorageの検証 |
-| `tailwindcss` `@tailwindcss/vite` | 必須 | スタイル(Vite用プラグインを使う) |
-| `vitest` `jsdom` | 必須 | テスト実行環境 |
-| `@testing-library/react` `@testing-library/dom` `@testing-library/jest-dom` `@testing-library/user-event` | 必須 | コンポーネントテスト(`dom` はreactの必須の依存) |
-| `msw` | 推奨 | テストでDummyJSONの応答を差し替える |
-| `prettier` `eslint-config-prettier` | 推奨 | 整形(ESLintとの競合を防ぐ) |
-| `@types/node` | 推奨 | `vite.config.ts` のパスエイリアス用 |
-| `@tanstack/react-query-devtools` | 任意 | キャッシュの状態を画面で確認する(学習用) |
-| `@tanstack/eslint-plugin-query` | 任意 | TanStack Queryの典型的な書き間違いをlintで検出 |
-| `@vitest/coverage-v8` | 任意 | カバレッジの確認 |
-| `husky` `lint-staged` | 任意 | コミット前にlint・整形を自動実行 |
+| パッケージ                                                                                                | 種別 | 用途                                                    |
+| --------------------------------------------------------------------------------------------------------- | ---- | ------------------------------------------------------- |
+| `react-router`                                                                                            | 必須 | 画面遷移(v7。旧 `react-router-dom` の機能も含む)        |
+| `@tanstack/react-query`                                                                                   | 必須 | 商品取得のキャッシュ、`useInfiniteQuery`、`useMutation` |
+| `zod`                                                                                                     | 必須 | フォーム・API応答・localStorageの検証                   |
+| `tailwindcss` `@tailwindcss/vite`                                                                         | 必須 | スタイル(Vite用プラグインを使う)                        |
+| `vitest` `jsdom`                                                                                          | 必須 | テスト実行環境                                          |
+| `@testing-library/react` `@testing-library/dom` `@testing-library/jest-dom` `@testing-library/user-event` | 必須 | コンポーネントテスト(`dom` はreactの必須の依存)         |
+| `msw`                                                                                                     | 推奨 | テストでDummyJSONの応答を差し替える                     |
+| `prettier` `eslint-config-prettier`                                                                       | 推奨 | 整形(ESLintとの競合を防ぐ)                              |
+| `@types/node`                                                                                             | 推奨 | `vite.config.ts` のパスエイリアス用                     |
+| `@tanstack/react-query-devtools`                                                                          | 任意 | キャッシュの状態を画面で確認する(学習用)                |
+| `@tanstack/eslint-plugin-query`                                                                           | 任意 | TanStack Queryの典型的な書き間違いをlintで検出          |
+| `@vitest/coverage-v8`                                                                                     | 任意 | カバレッジの確認                                        |
+| `husky` `lint-staged`                                                                                     | 任意 | コミット前にlint・整形を自動実行                        |
 
 入れないもの(標準機能で足りる):モーダルのライブラリ(`<dialog>`)、ID生成(`crypto.randomUUID()`)、画像リサイズ(Canvas)、Toast(自作)、状態管理ライブラリ(localStorage+`useSyncExternalStore`)。
 

@@ -1,5 +1,6 @@
 {
   "name": "vite-react-typescript-tailwindv4-vitest-template",
+  "packageManager": "pnpm@12.16.1",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -9,7 +10,10 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "vitest",
-    "test:ui": "vitest --ui"
+    "test:run": "vitest run",
+    "test:ui": "vitest --ui",
+    "format": "prettier --write .",
+    "typecheck": "tsc -b"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.3.3",
