@@ -1,5 +1,8 @@
 import { IMAGE, LIMITS } from '@/shared/constants'
 import { NEED_CARD_COPY } from '@/features/card/content'
+import addToCartShot from '@/assets/images/screenshots/how-to-2-add-to-cart.webp'
+import checkoutShot from '@/assets/images/screenshots/how-to-3-checkout.webp'
+import createCardShot from '@/assets/images/screenshots/how-to-1-create-card.webp'
 
 export const HERO_COPY = {
   title: 'COW MODE',
@@ -31,7 +34,10 @@ export const HOW_TO_STEPS: HowToStep[] = [
     title: 'カードを作成',
     description: NEED_CARD_COPY.description,
     notes: [],
-    screenshot: { src: null, alt: 'カード作成画面のスクリーンショット' },
+    screenshot: {
+      src: createCardShot,
+      alt: 'カード作成画面のスクリーンショット。カードの表と裏の画像、名前の入力欄、作成ボタンが並んでいる。',
+    },
   },
   {
     id: 'add-to-cart',
@@ -43,13 +49,19 @@ export const HOW_TO_STEPS: HowToStep[] = [
       `保存できる画像は${LIMITS.imageCount}枚までです`,
       `商品名(${LIMITS.itemName.max}字まで)と価格の入力が必要です`,
     ],
-    screenshot: { src: null, alt: '商品のアップロード画面のスクリーンショット' },
+    screenshot: {
+      src: addToCartShot,
+      alt: '商品のアップロード画面のスクリーンショット。商品画像のアップロード欄、商品名と価格の入力欄、カートに追加ボタンが並んでいる。',
+    },
   },
   {
     id: 'checkout',
     title: '決済して物欲を解放',
     description: 'カート画面で内容を確認して決済して、物欲を解放してください。',
     notes: [],
-    screenshot: { src: null, alt: 'カート画面のスクリーンショット' },
+    screenshot: {
+      src: checkoutShot,
+      alt: 'カート画面のスクリーンショット。カートに入れた商品の一覧、合計金額、決済ボタンが表示されている。',
+    },
   },
 ]
