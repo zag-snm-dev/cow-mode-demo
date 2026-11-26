@@ -26,11 +26,12 @@ describe('TopPage(表示)', () => {
     expect(titles).toEqual(['カードを作成', '欲しい商品をカートへ', '決済して物欲を解放'])
   })
 
-  it('各ブロックに、スクリーンショットの仮画像を表示する', () => {
-    renderApp('/')
+  it('各ブロックに、スクリーンショットの画像を表示し、仮画像は残っていない', () => {
+  renderApp('/')
 
-    expect(screen.getAllByText('スクリーンショット(仮画像)')).toHaveLength(3)
-  })
+  expect(screen.getAllByAltText(/スクリーンショット/)).toHaveLength(3)
+  expect(screen.queryByText('スクリーンショット(仮画像)')).not.toBeInTheDocument()
+})
 
   it('アップロードの注意事項を表示する', () => {
     renderApp('/')
